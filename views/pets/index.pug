@@ -1,0 +1,24 @@
+doctype html
+html
+    head
+        title= `${title}`
+        meta(charset='utf-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1')
+        link(rel='stylesheet', href='/css/style.css')
+    body
+        h1 Pets
+        table 
+            thead
+                tr
+                    th Name
+                    th Breed
+                    th Age
+                    th Action 
+            tbody
+                each pet in data
+                    tr
+                        td= pet.properties.pet_name
+                        td= pet.properties.pet_breed
+                        td= pet.properties.pet_age
+                        td
+                            a(href=`/update-cobj?id=${pet.id}`) Update
