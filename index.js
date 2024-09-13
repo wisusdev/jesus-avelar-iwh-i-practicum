@@ -11,16 +11,73 @@ app.use(express.json());
 const PRIVATE_APP_ACCESS = '';
 
 // TODO: ROUTE 1 - Create a new app.get route for the homepage to call your custom object data. Pass this data along to the front-end and create a new pug template in the views folder.
+app.get('/', async (req, res) => {
+	const petsUri = 'https://api.hubapi.com/crm/v3/objects/pets?properties=pet_name,pet_age,pet_breed';
+	const headers = {
+		Authorization: `Bearer ${PRIVATE_APP_ACCESS}`,
+		'Content-Type': 'application/json'
+	};
 
-// * Code for Route 1 goes here
+	try {
+		const response = await axios.get(petsUri, { headers });
+		const data = response.data.results;
+
+		console.log(data);
+
+		res.render('pets/index', { title: 'Index | Pets', data });
+	} catch (error) {
+		console.error(error);
+	}
+
+});
 
 // TODO: ROUTE 2 - Create a new app.get route for the form to create or update new custom object data. Send this data along in the next route.
+app.get('/update-cobj', async (req, res) => {
+    //  http://localhost:3000/update-cobj?id=123
+    const petId = req.query.id;
+    const getPetUri = `https://api.hubapi.com/crm/v3/objects/pets/${petId}?properties=pet_name,pet_age,pet_breed`;
+    const headers = {
+        Authorization: `Bearer ${PRIVATE_APP_ACCESS}`,
+        'Content-Type': 'application/json'
+    };
 
-// * Code for Route 2 goes here
+    try {
+        const response = await axios.get(getPetUri, { headers });
+        const data = response.data.properties;
+
+        console.log(data);
+
+        res.render('pets/update', { title: 'Update Custom Object Form | Integrating With HubSpot I Practicum', data });
+    } catch (error) {
+        console.error(error);
+    }
+});
 
 // TODO: ROUTE 3 - Create a new app.post route for the custom objects form to create or update your custom object data. Once executed, redirect the user to the homepage.
+app.post('/update-cobj', async (req, res) => {
+    const updateData = {
+        properties: {
+            pet_name: req.body.pet_name,
+            pet_age: req.body.pet_age,
+            pet_breed: req.body.pet_breed
+        }
+    };
 
-// * Code for Route 3 goes here
+    const petId = req.query.id;
+    const updatePetUri = `https://api.hubapi.com/crm/v3/objects/pets/${petId}`;
+
+    const headers = {
+        Authorization: `Bearer ${PRIVATE_APP_ACCESS}`,
+        'Content-Type': 'application/json'
+    };
+
+    try {
+        await axios.patch(updatePetUri, updateData, { headers });
+        res.redirect('/');
+    } catch (error) {
+        console.error(error);
+    }
+});
 
 /** 
 * * This is sample code to give you a reference for how you should structure your calls. 
